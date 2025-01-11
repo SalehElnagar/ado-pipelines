@@ -1,0 +1,57 @@
+# azure-pipelines/inline/build.inline.yml
+# Monolithic pipeline (before templates) showing duplication across apps
+
+trigger:
+- main
+
+pr:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  nodeVersion: '18'
+  imageTag: '$(Build.BuildId)'
+  containerRegistry: 'myregistry.azurecr.io'
+  serviceConnection: 'container-reg-sc'
+
+steps:
+- task: NodeTool@0
+  displayName: 'Use Node $(nodeVersion)'
+  inputs:
+    versionSpec: '$(nodeVersion)'
+
+# API service build & test
+- script: |
+    cd apps/api-service
+    npm ci
+    npm test
+    docker build --target test -t api-service:test .
+    docker build -t $(containerRegistry)/api-service:$(imageTag) .
+  displayName: 'api-service build & test'
+
+- task: Docker@2
+  displayName: 'Push api-service image'
+  inputs:
+    containerRegistry: '$(serviceConnection)'
+    command: 'push'
+    repository: 'api-service'
+    tags: '$(imageTag)'
+
+# Worker service build & test
+- script: |
+    cd apps/worker-service
+    npm ci
+    npm test
+    docker build --target test -t worker-service:test .
+    docker build -t $(containerRegistry)/worker-service:$(imageTag) .
+  displayName: 'worker-service build & test'
+
+- task: Docker@2
+  displayName: 'Push worker-service image'
+  inputs:
+    containerRegistry: '$(serviceConnection)'
+    command: 'push'
+    repository: 'worker-service'
+    tags: '$(imageTag)'
