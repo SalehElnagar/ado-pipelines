@@ -1,0 +1,23 @@
+parameters:
+- name: appName
+  type: string
+- name: imageName
+  type: string
+- name: imageTag
+  type: string
+  default: 'latest'
+- name: containerRegistry
+  type: string
+- name: serviceConnection
+  type: string
+- name: repositoryName
+  type: string
+
+steps:
+- task: Docker@2
+  displayName: 'Push ${{ parameters.appName }} image'
+  inputs:
+    command: push
+    containerRegistry: ${{ parameters.serviceConnection }}
+    repository: ${{ parameters.repositoryName }}
+    tags: ${{ parameters.imageTag }}

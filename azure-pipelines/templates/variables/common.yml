@@ -1,0 +1,6 @@
+variables:
+  nodeVersion: '18'
+  imageTag: '$(Build.BuildId)'
+  # These are populated by pipeline variables set via the setup script.
+  containerRegistry: '$(CONTAINER_REGISTRY)'
+  serviceConnection: '$(CONTAINER_REGISTRY_SC)'
