@@ -1,0 +1,73 @@
+parameters:
+- name: appName
+  type: string
+- name: appPath
+  type: string
+- name: dockerfile
+  type: string
+- name: imageName
+  type: string
+- name: imageTag
+  type: string
+  default: '$(Build.BuildId)'
+- name: runTests
+  type: boolean
+  default: true
+- name: publishImage
+  type: boolean
+  default: false
+- name: containerRegistry
+  type: string
+  default: '$(containerRegistry)'
+- name: serviceConnection
+  type: string
+  default: '$(serviceConnection)'
+- name: poolImage
+  type: string
+  default: 'ubuntu-latest'
+- name: poolName
+  type: string
+  default: ''
+- name: repositoryName
+  type: string
+  default: ''
+
+jobs:
+- job: ${{ replace(parameters.appName, '-', '_') }}_ci
+  displayName: "${{ parameters.appName }} CI"
+  pool:
+    ${{ if eq(parameters.poolName, '') }}:
+      vmImage: ${{ parameters.poolImage }}
+    ${{ if ne(parameters.poolName, '') }}:
+      name: ${{ parameters.poolName }}
+  steps:
+  - checkout: self
+    fetchDepth: 0
+
+  - ${{ if eq(parameters.runTests, true) }}:
+    - template: ../steps/docker-test.yml
+      parameters:
+        appName: ${{ parameters.appName }}
+        context: ${{ parameters.appPath }}
+        dockerfile: ${{ parameters.dockerfile }}
+        imageName: ${{ parameters.imageName }}
+        imageTag: ${{ parameters.imageTag }}
+
+  - template: ../steps/docker-build.yml
+    parameters:
+      appName: ${{ parameters.appName }}
+      context: ${{ parameters.appPath }}
+      dockerfile: ${{ parameters.dockerfile }}
+      imageName: ${{ parameters.imageName }}
+      imageTag: ${{ parameters.imageTag }}
+      target: ''
+
+  - ${{ if eq(parameters.publishImage, true) }}:
+    - template: ../steps/docker-push.yml
+      parameters:
+        appName: ${{ parameters.appName }}
+        imageName: ${{ parameters.imageName }}
+        imageTag: ${{ parameters.imageTag }}
+        containerRegistry: ${{ parameters.containerRegistry }}
+        serviceConnection: ${{ parameters.serviceConnection }}
+        repositoryName: ${{ parameters.repositoryName }}
