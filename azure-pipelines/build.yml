@@ -1,0 +1,36 @@
+# azure-pipelines/build.yml
+# MAIN CI pipeline entry (build + test + optional push)
+
+parameters:
+- name: runTests
+  type: boolean
+  default: true
+
+trigger:
+- main
+
+pr:
+- main
+
+variables:
+- group: acr-config
+
+extends:
+  template: pipelines/apps-ci.yml
+  parameters:
+    runTests: ${{ parameters.runTests }}
+    publishImages: true
+    poolName: 'Default'
+    containerRegistry: $(CONTAINER_REGISTRY)
+    serviceConnection: $(CONTAINER_REGISTRY_SC)
+    apps:
+      - name: api-service
+        path: apps/api-service
+        dockerfile: apps/api-service/Dockerfile
+        imageName: $(containerRegistry)/api-service
+        repositoryName: api-service
+      - name: worker-service
+        path: apps/worker-service
+        dockerfile: apps/worker-service/Dockerfile
+        imageName: $(containerRegistry)/worker-service
+        repositoryName: worker-service
