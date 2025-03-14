@@ -1,0 +1,38 @@
+# apps/api-service/pipelines/ci.yml
+# Main CI pipeline for api-service (single-app entry)
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - apps/api-service/
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - apps/api-service/
+
+parameters:
+- name: runTests
+  type: boolean
+  default: true
+
+variables:
+- group: acr-config
+
+extends:
+  template: ../../../azure-pipelines/pipelines/app-ci-template.yml
+  parameters:
+    appName: api-service
+    appPath: apps/api-service
+    dockerfile: apps/api-service/Dockerfile
+    imageName: $(containerRegistry)/api-service
+    containerRegistry: $(CONTAINER_REGISTRY)
+    serviceConnection: $(CONTAINER_REGISTRY_SC)
+    runTests: ${{ parameters.runTests }}
+    publishImages: true
+    poolName: 'Default'
