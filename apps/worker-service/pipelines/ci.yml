@@ -1,0 +1,38 @@
+# apps/worker-service/pipelines/ci.yml
+# Main CI pipeline for worker-service (single-app entry)
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - apps/worker-service/
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - apps/worker-service/
+
+parameters:
+- name: runTests
+  type: boolean
+  default: true
+
+variables:
+- group: acr-config
+
+extends:
+  template: ../../../azure-pipelines/pipelines/app-ci-template.yml
+  parameters:
+    appName: worker-service
+    appPath: apps/worker-service
+    dockerfile: apps/worker-service/Dockerfile
+    imageName: $(containerRegistry)/worker-service
+    containerRegistry: $(CONTAINER_REGISTRY)
+    serviceConnection: $(CONTAINER_REGISTRY_SC)
+    runTests: ${{ parameters.runTests }}
+    publishImages: true
+    poolName: 'Default'
