@@ -1,0 +1,47 @@
+parameters:
+- name: apps
+  type: object
+  default: []
+- name: runTests
+  type: boolean
+  default: true
+- name: publishImages
+  type: boolean
+  default: false
+- name: poolImage
+  type: string
+  default: 'ubuntu-latest'
+- name: poolName
+  type: string
+  default: ''
+- name: imageTag
+  type: string
+  default: '$(Build.BuildId)'
+- name: containerRegistry
+  type: string
+  default: '$(containerRegistry)'
+- name: serviceConnection
+  type: string
+  default: '$(serviceConnection)'
+
+stages:
+- stage: CI
+  displayName: 'CI'
+  variables:
+  - template: ../variables/common.yml
+  jobs:
+  - ${{ each app in parameters.apps }}:
+    - template: ../jobs/app-ci-job.yml
+      parameters:
+        appName: ${{ app.name }}
+        appPath: ${{ app.path }}
+        dockerfile: ${{ app.dockerfile }}
+        imageName: ${{ app.imageName }}
+        repositoryName: ${{ app.repositoryName }}
+        imageTag: ${{ parameters.imageTag }}
+        runTests: ${{ parameters.runTests }}
+        publishImage: ${{ parameters.publishImages }}
+        containerRegistry: ${{ parameters.containerRegistry }}
+        serviceConnection: ${{ parameters.serviceConnection }}
+        poolImage: ${{ parameters.poolImage }}
+        poolName: ${{ parameters.poolName }}

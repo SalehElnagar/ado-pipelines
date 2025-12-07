@@ -1,0 +1,50 @@
+# azure-pipelines/pipelines/app-ci-template.yml
+# Full pipeline template for a single app (CI)
+parameters:
+- name: appName
+  type: string
+- name: appPath
+  type: string
+- name: dockerfile
+  type: string
+- name: imageName
+  type: string
+  default: ''
+- name: runTests
+  type: boolean
+  default: true
+- name: publishImages
+  type: boolean
+  default: false
+- name: poolImage
+  type: string
+  default: 'ubuntu-latest'
+- name: poolName
+  type: string
+  default: ''
+- name: imageTag
+  type: string
+  default: '$(Build.BuildId)'
+- name: containerRegistry
+  type: string
+  default: '$(containerRegistry)'
+- name: serviceConnection
+  type: string
+  default: '$(serviceConnection)'
+
+stages:
+- template: ../templates/stages/ci.yml
+  parameters:
+    apps:
+      - name: ${{ parameters.appName }}
+        path: ${{ parameters.appPath }}
+        dockerfile: ${{ parameters.dockerfile }}
+        imageName: ${{ parameters.imageName }}
+        repositoryName: ${{ parameters.appName }}
+    runTests: ${{ parameters.runTests }}
+    publishImages: ${{ parameters.publishImages }}
+    poolImage: ${{ parameters.poolImage }}
+    poolName: ${{ parameters.poolName }}
+    imageTag: ${{ parameters.imageTag }}
+    containerRegistry: ${{ parameters.containerRegistry }}
+    serviceConnection: ${{ parameters.serviceConnection }}

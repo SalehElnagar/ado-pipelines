@@ -1,0 +1,28 @@
+# apps/api-service/pipelines/pr.yml
+# PR validation pipeline for api-service (single-app entry)
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - apps/api-service/
+
+trigger: none
+
+variables:
+- group: acr-config
+
+extends:
+  template: ../../../azure-pipelines/pipelines/app-pr-template.yml
+  parameters:
+    appName: api-service
+    appPath: apps/api-service
+    dockerfile: apps/api-service/Dockerfile
+    imageName: $(containerRegistry)/api-service
+    containerRegistry: $(CONTAINER_REGISTRY)
+    serviceConnection: $(CONTAINER_REGISTRY_SC)
+    runTests: true
+    poolName: 'Default'
+    publishImages: false

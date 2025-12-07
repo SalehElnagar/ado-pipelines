@@ -1,0 +1,32 @@
+# azure-pipelines/pr.yml
+# MAIN PR validation pipeline entry
+
+parameters:
+- name: runTests
+  type: boolean
+  default: true
+
+pr:
+- main
+
+trigger: none
+
+variables:
+- group: acr-config
+
+extends:
+  template: pipelines/apps-pr.yml
+  parameters:
+    runTests: ${{ parameters.runTests }}
+    poolName: 'Default'
+    containerRegistry: $(CONTAINER_REGISTRY)
+    serviceConnection: $(CONTAINER_REGISTRY_SC)
+    apps:
+      - name: api-service
+        path: apps/api-service
+        dockerfile: apps/api-service/Dockerfile
+        imageName: $(containerRegistry)/api-service
+      - name: worker-service
+        path: apps/worker-service
+        dockerfile: apps/worker-service/Dockerfile
+        imageName: $(containerRegistry)/worker-service

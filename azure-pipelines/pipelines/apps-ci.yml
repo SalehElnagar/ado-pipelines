@@ -1,0 +1,39 @@
+# azure-pipelines/pipelines/apps-ci.yml
+# Full pipeline template for multi-app CI
+parameters:
+- name: apps
+  type: object
+  default: []
+- name: runTests
+  type: boolean
+  default: true
+- name: publishImages
+  type: boolean
+  default: false
+- name: poolImage
+  type: string
+  default: 'ubuntu-latest'
+- name: poolName
+  type: string
+  default: ''
+- name: imageTag
+  type: string
+  default: '$(Build.BuildId)'
+- name: containerRegistry
+  type: string
+  default: '$(containerRegistry)'
+- name: serviceConnection
+  type: string
+  default: '$(serviceConnection)'
+
+stages:
+- template: ../templates/stages/ci.yml
+  parameters:
+    apps: ${{ parameters.apps }}
+    runTests: ${{ parameters.runTests }}
+    publishImages: ${{ parameters.publishImages }}
+    poolImage: ${{ parameters.poolImage }}
+    poolName: ${{ parameters.poolName }}
+    imageTag: ${{ parameters.imageTag }}
+    containerRegistry: ${{ parameters.containerRegistry }}
+    serviceConnection: ${{ parameters.serviceConnection }}

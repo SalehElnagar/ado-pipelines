@@ -1,0 +1,28 @@
+# apps/worker-service/pipelines/pr.yml
+# PR validation pipeline for worker-service (single-app entry)
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - apps/worker-service/
+
+trigger: none
+
+variables:
+- group: acr-config
+
+extends:
+  template: ../../../azure-pipelines/pipelines/app-pr-template.yml
+  parameters:
+    appName: worker-service
+    appPath: apps/worker-service
+    dockerfile: apps/worker-service/Dockerfile
+    imageName: $(containerRegistry)/worker-service
+    containerRegistry: $(CONTAINER_REGISTRY)
+    serviceConnection: $(CONTAINER_REGISTRY_SC)
+    runTests: true
+    poolName: 'Default'
+    publishImages: false

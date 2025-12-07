@@ -1,0 +1,26 @@
+parameters:
+- name: appName
+  type: string
+- name: context
+  type: string
+- name: dockerfile
+  type: string
+- name: imageName
+  type: string
+- name: imageTag
+  type: string
+  default: 'latest'
+- name: target
+  type: string
+  default: ''
+
+steps:
+- script: |
+    set -e
+    TARGET_FLAG=""
+    if [ "${{ parameters.target }}" != "" ]; then
+      TARGET_FLAG="--target ${{ parameters.target }}"
+    fi
+    echo "Building ${{ parameters.appName }}: ${{ parameters.imageName }}:${{ parameters.imageTag }}"
+    docker build $TARGET_FLAG -f ${{ parameters.dockerfile }} -t ${{ parameters.imageName }}:${{ parameters.imageTag }} ${{ parameters.context }}
+  displayName: 'Build ${{ parameters.appName }}'

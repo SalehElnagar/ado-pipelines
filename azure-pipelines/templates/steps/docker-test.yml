@@ -1,0 +1,23 @@
+parameters:
+- name: appName
+  type: string
+- name: context
+  type: string
+- name: dockerfile
+  type: string
+- name: imageName
+  type: string
+- name: imageTag
+  type: string
+  default: 'latest'
+- name: target
+  type: string
+  default: 'test'
+
+steps:
+- script: |
+    set -e
+    TARGET=${{ parameters.target }}
+    echo "Running docker build --target ${TARGET} for ${{ parameters.appName }}"
+    docker build --target ${TARGET} -f ${{ parameters.dockerfile }} -t ${{ parameters.imageName }}:${{ parameters.imageTag }} ${{ parameters.context }}
+  displayName: 'Test ${{ parameters.appName }} (docker target)'
